@@ -55,14 +55,14 @@ def post_image(vk_token, group_id, comments):
     response = requests.get(save_photo_url, params=params)
     response_data = response.json()
     owner_id = response_data['response'][0]['owner_id']
-    id = response_data['response'][0]['id']
+    picture_id = response_data['response'][0]['id']
     url = f'https://api.vk.com/method/wall.post'
     params = {'access_token': vk_token,
               'v': '5.131',
             'owner_id': -int(group_id),
               'from_group': '1',
               'message': f'{comments}',
-              'attachments': f'photo{owner_id}_{id}'}
+              'attachments': f'photo{owner_id}_{picture_id}'}
     requests.post(url, params=params)
 
 
