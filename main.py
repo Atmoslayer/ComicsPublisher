@@ -12,10 +12,6 @@ def save_image(url, filename):
         picture.write(response.content)
 
 
-def delete_image(filename):
-    os.remove(f'{filename}.png')
-
-
 def fetch_comics():
     url = 'https://xkcd.com/353/info.0.json'
     response = requests.get(url)
@@ -44,6 +40,7 @@ def post_image(vk_token, group_id, comments):
     with open('picture.png', 'rb') as photo:
         upload_response = requests.post(upload_url, files={'photo': photo})
     upload_data = upload_response.json()
+    os.remove('picture.png')
 
     save_photo_url = f'https://api.vk.com/method/photos.saveWallPhoto'
     params = {'access_token': vk_token,
@@ -71,4 +68,3 @@ if __name__ == '__main__':
     group_id = os.getenv('GROUP_ID')
     comments = fetch_comics()
     post_image(vk_token, group_id, comments)
-    delete_image('picture')
