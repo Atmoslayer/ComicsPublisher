@@ -12,20 +12,22 @@ def save_image(url, filename):
         picture.write(response.content)
 
 
-def fetch_comics():
-    url = 'https://xkcd.com/353/info.0.json'
+def get_comics_id():
+    url = 'https://xkcd.com/info.0.json'
     response = requests.get(url)
     response.raise_for_status()
     comics_quantity = response.json()['num']
     comics_id = random.randint(1, comics_quantity)
+    return comics_id
+
+
+def fetch_comics(comics_id):
     url = f'https://xkcd.com/{comics_id}/info.0.json'
     response_picture = requests.get(url)
-    response.raise_for_status()
-
+    response_picture.raise_for_status()
     picture_link = response_picture.json()['img']
     save_image(picture_link, 'picture')
     comments = response_picture.json()['alt']
-
     return comments
 
 
@@ -66,5 +68,6 @@ if __name__ == '__main__':
     load_dotenv()
     vk_token = os.getenv('VK_TOKEN')
     group_id = os.getenv('GROUP_ID')
-    comments = fetch_comics()
+    comics_id = get_comics_id()
+    comments = fetch_comics(comics_id)
     post_image(vk_token, group_id, comments)
