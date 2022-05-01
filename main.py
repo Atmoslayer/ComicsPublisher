@@ -25,9 +25,10 @@ def fetch_comics(comics_id):
     url = f'https://xkcd.com/{comics_id}/info.0.json'
     response_picture = requests.get(url)
     response_picture.raise_for_status()
-    picture_link = response_picture.json()['img']
+    picture_data = response_picture.json()
+    picture_link = picture_data['img']
     save_image(picture_link, 'picture')
-    comments = response_picture.json()['alt']
+    comments = picture_data['alt']
     return comments
 
 
@@ -52,8 +53,9 @@ def post_image(vk_token, group_id, comments):
               'photo': upload_data['photo'],
               'hash': upload_data['hash']}
     response = requests.get(save_photo_url, params=params)
-    owner_id = response.json()['response'][0]['owner_id']
-    id = response.json()['response'][0]['id']
+    response_data = response.json()
+    owner_id = response_data['response'][0]['owner_id']
+    id = response_data['response'][0]['id']
     url = f'https://api.vk.com/method/wall.post'
     params = {'access_token': vk_token,
               'v': '5.131',
