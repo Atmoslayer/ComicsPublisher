@@ -5,7 +5,7 @@ import requests
 from dotenv import load_dotenv
 
 
-def save_image(url, filename):
+def download_image(url, filename):
     response = requests.get(url)
     response.raise_for_status()
     with open(f'{filename}.png', 'ab') as picture:
@@ -27,12 +27,12 @@ def fetch_comics(comics_id):
     response_picture.raise_for_status()
     picture_data = response_picture.json()
     picture_link = picture_data['img']
-    save_image(picture_link, 'picture')
+    download_image(picture_link, 'picture')
     comments = picture_data['alt']
     return comments
 
 
-def post_image(vk_token, group_id, comments):
+def upload_image(vk_token):
     api_url = f'https://api.vk.com/method/photos.getWallUploadServer'
     api_params = {'access_token': vk_token,
                             'v': '5.131'}
@@ -45,6 +45,10 @@ def post_image(vk_token, group_id, comments):
         upload_response = requests.post(upload_url, files={'photo': photo})
     upload_data = upload_response.json()
     os.remove('picture.png')
+    return upload_data
+
+
+def save_image(vk_token, upload_data):
 
     save_photo_url = f'https://api.vk.com/method/photos.saveWallPhoto'
     params = {'access_token': vk_token,
@@ -56,6 +60,10 @@ def post_image(vk_token, group_id, comments):
     response_data = response.json()
     owner_id = response_data['response'][0]['owner_id']
     picture_id = response_data['response'][0]['id']
+    return owner_id, picture_id
+
+
+def post_image(vk_token, group_id, comments, owner_id, picture_id):
     url = f'https://api.vk.com/method/wall.post'
     params = {'access_token': vk_token,
               'v': '5.131',
@@ -73,4 +81,6 @@ if __name__ == '__main__':
     group_id = os.getenv('GROUP_ID')
     comics_id = get_comics_id()
     comments = fetch_comics(comics_id)
-    post_image(vk_token, group_id, comments)
+    upload_data = upload_image(vk_token)
+    owner_id, picture_id = save_image(vk_token, upload_data)
+    post_image(vk_token, group_id, comments, owner_id, picture_id)
