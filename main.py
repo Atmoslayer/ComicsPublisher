@@ -36,9 +36,9 @@ def fetch_comics(comics_id):
 
 
 def upload_image(vk_token):
-    api_url = f'https://api.vk.com/method/photos.getWallUploadServer'
+    api_url = 'https://api.vk.com/method/photos.getWallUploadServer'
     api_params = {'access_token': vk_token,
-                            'v': '5.131'}
+                  'v': '5.131'}
     api_response = requests.get(api_url, params=api_params)
     api_response.raise_for_status()
     api_data = api_response.json()
@@ -52,10 +52,9 @@ def upload_image(vk_token):
 
 def save_image(vk_token, upload_data):
 
-    save_photo_url = f'https://api.vk.com/method/photos.saveWallPhoto'
-    params = {'access_token': vk_token,
-              'v': '5.131',
-            'server': upload_data['server'],
+    save_photo_url = 'https://api.vk.com/method/photos.saveWallPhoto'
+    params = {'access_token': vk_token, 'v': '5.131',
+              'server': upload_data['server'],
               'photo': upload_data['photo'],
               'hash': upload_data['hash']}
     response = requests.get(save_photo_url, params=params)
@@ -68,10 +67,9 @@ def save_image(vk_token, upload_data):
 
 
 def post_image(vk_token, group_id, comments, owner_id, picture_id):
-    url = f'https://api.vk.com/method/wall.post'
-    params = {'access_token': vk_token,
-              'v': '5.131',
-            'owner_id': -int(group_id),
+    url = 'https://api.vk.com/method/wall.post'
+    params = {'access_token': vk_token, 'v': '5.131',
+              'owner_id': -int(group_id),
               'from_group': '1',
               'message': f'{comments}',
               'attachments': f'photo{owner_id}_{picture_id}'}
