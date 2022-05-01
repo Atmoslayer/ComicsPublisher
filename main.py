@@ -3,6 +3,9 @@ import random
 
 import requests
 from dotenv import load_dotenv
+from requests.exceptions import HTTPError
+
+from vkexceptions import VkHTTPError
 
 
 def download_image(url, filename):
@@ -39,12 +42,11 @@ def upload_image(vk_token):
     api_response = requests.get(api_url, params=api_params)
     api_response.raise_for_status()
     api_data = api_response.json()
-
+    raise_for_vk_status(api_data)
     upload_url = api_data['response']['upload_url']
     with open('picture.png', 'rb') as photo:
         upload_response = requests.post(upload_url, files={'photo': photo})
     upload_data = upload_response.json()
-    os.remove('picture.png')
     return upload_data
 
 
@@ -57,7 +59,9 @@ def save_image(vk_token, upload_data):
               'photo': upload_data['photo'],
               'hash': upload_data['hash']}
     response = requests.get(save_photo_url, params=params)
+    response.raise_for_status()
     response_data = response.json()
+    raise_for_vk_status(response_data)
     owner_id = response_data['response'][0]['owner_id']
     picture_id = response_data['response'][0]['id']
     return owner_id, picture_id
@@ -71,7 +75,15 @@ def post_image(vk_token, group_id, comments, owner_id, picture_id):
               'from_group': '1',
               'message': f'{comments}',
               'attachments': f'photo{owner_id}_{picture_id}'}
-    requests.post(url, params=params)
+    response = requests.post(url, params=params)
+    response.raise_for_status()
+    raise_for_vk_status(response.json())
+
+
+def raise_for_vk_status(response_data):
+    if 'error' in response_data.keys():
+        error = response_data['error']['error_msg']
+        raise VkHTTPError(error)
 
 
 if __name__ == '__main__':
@@ -79,8 +91,14 @@ if __name__ == '__main__':
     load_dotenv()
     vk_token = os.getenv('VK_TOKEN')
     group_id = os.getenv('GROUP_ID')
-    comics_id = get_comics_id()
-    comments = fetch_comics(comics_id)
-    upload_data = upload_image(vk_token)
-    owner_id, picture_id = save_image(vk_token, upload_data)
-    post_image(vk_token, group_id, comments, owner_id, picture_id)
+    try:
+        comics_id = get_comics_id()
+        comments = fetch_comics(comics_id)
+        upload_data = upload_image(vk_token)
+        owner_id, picture_id = save_image(vk_token, upload_data)
+        post_image(vk_token, group_id, comments, owner_id, picture_id)
+
+    except (HTTPError, VkHTTPError) as http_error:
+        print(f'HTTP error occured: {http_error}')
+    finally:
+        os.remove('picture.png')
