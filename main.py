@@ -36,6 +36,7 @@ def post_image(vk_token, group_id, comments):
     api_params = {'access_token': vk_token,
                             'v': '5.131'}
     api_response = requests.get(api_url, params=api_params)
+    api_response.raise_for_status()
     api_data = api_response.json()
 
     upload_url = api_data['response']['upload_url']
