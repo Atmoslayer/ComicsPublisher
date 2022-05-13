@@ -15,7 +15,7 @@ def download_image(url, filename):
         picture.write(response.content)
 
 
-def get_comics_id():
+def get_random_comics_id():
     url = 'https://xkcd.com/info.0.json'
     response = requests.get(url)
     response.raise_for_status()
@@ -46,6 +46,7 @@ def upload_image(vk_token):
     upload_url = api_data['response']['upload_url']
     with open('picture.png', 'rb') as photo:
         upload_response = requests.post(upload_url, files={'photo': photo})
+    upload_response.raise_for_status()
     upload_data = upload_response.json()
     return upload_data
 
@@ -71,7 +72,7 @@ def post_image(vk_token, group_id, comments, owner_id, picture_id):
     params = {'access_token': vk_token, 'v': '5.131',
               'owner_id': -int(group_id),
               'from_group': '1',
-              'message': f'{comments}',
+              'message': comments,
               'attachments': f'photo{owner_id}_{picture_id}'}
     response = requests.post(url, params=params)
     response.raise_for_status()
@@ -90,7 +91,7 @@ if __name__ == '__main__':
     vk_token = os.getenv('VK_TOKEN')
     group_id = os.getenv('GROUP_ID')
     try:
-        comics_id = get_comics_id()
+        comics_id = get_random_comics_id()
         comments = fetch_comics(comics_id)
         upload_data = upload_image(vk_token)
         owner_id, picture_id = save_image(vk_token, upload_data)
