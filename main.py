@@ -54,7 +54,8 @@ def upload_image(vk_token):
 def save_image(vk_token, upload_data):
 
     save_photo_url = 'https://api.vk.com/method/photos.saveWallPhoto'
-    params = {'access_token': vk_token, 'v': '5.131',
+    params = {
+              'access_token': vk_token, 'v': '5.131',
               'server': upload_data['server'],
               'photo': upload_data['photo'],
               'hash': upload_data['hash']}
@@ -69,7 +70,8 @@ def save_image(vk_token, upload_data):
 
 def post_image(vk_token, group_id, comments, owner_id, picture_id):
     url = 'https://api.vk.com/method/wall.post'
-    params = {'access_token': vk_token, 'v': '5.131',
+    params = {
+              'access_token': vk_token, 'v': '5.131',
               'owner_id': -int(group_id),
               'from_group': '1',
               'message': comments,
